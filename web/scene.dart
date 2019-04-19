@@ -1,11 +1,14 @@
 import "dart:html";
 import "dart:js";
+import "room.dart";
+import "control.dart";
+import "map.dart";
 import "dart:math" as math;
 
 //////////////////////////////////////////////////
 
 class _Camera {
-  num fov = 60;
+  //num fov = 60;
 
   num lon = 0;
   num lat = 0;
@@ -18,7 +21,7 @@ class _Camera {
   num startLon = 0;
   num startLat = 0;
 
-  final num animationSpeed = 0.15;
+  final num animationSpeed = 0.2;
 }
 
 //////////////////////////////////////////////////
@@ -35,11 +38,22 @@ class Scene {
 
   final _Camera _cameraRig = _Camera();
 
+  final MainControl _control = MainControl();
+  final MapControl _map = MapControl();
+
   bool _listening = false;
+
+  List<Room> _rooms;
 
 //////////////////////////////////////////////////
 
-  Scene() {
+  Scene({List<Room> rooms}) : _rooms = rooms {
+    for (Room room in _rooms) {
+      _scene.callMethod("add", [room.mesh]);
+    }
+
+    _control.changeRoom(_rooms[0]);
+
     _renderer.callMethod("setPixelRatio", [window.devicePixelRatio]);
     _renderer.callMethod("setSize", [window.innerWidth, window.innerHeight]);
     querySelector("body").append(_renderer["domElement"]);
@@ -53,6 +67,8 @@ class Scene {
     querySelector("body").onMouseDown.listen(_mouse_down);
     querySelector("body").onMouseMove.listen(_mouse_move);
     querySelector("body").onMouseUp.listen(_mouse_up);
+
+    _map.show();
   }
 
 //////////////////////////////////////////////////
@@ -64,11 +80,6 @@ class Scene {
     _cameraRig.theta =
         context["THREE"]["Math"].callMethod("degToRad", [_cameraRig.lon]);
 
-    //num degreeRange =
-    //(context["THREE"]["Math"].callMethod("radToDeg", [_cameraRig.theta]) % 360)
-    //.abs();
-
-    //_detectChangeThreshold([], degreeRange);
     //_arrow_animation();
 
     _camera["position"]["x"] =
@@ -77,17 +88,19 @@ class Scene {
     _camera["position"]["z"] =
         100 * math.sin(_cameraRig.phi) * math.sin(_cameraRig.theta);
 
+    for (Room room in _rooms) {
+      if (room.isChanging) {
+        room.animate();
+      }
+    }
+
+    lookAround();
+
     _camera.callMethod("lookAt", [_scene["position"]]);
 
     _renderer.callMethod("render", [_scene, _camera]);
 
     window.requestAnimationFrame((num highResTime) => animate());
-  }
-
-//////////////////////////////////////////////////
-
-  void addMesh(JsObject mesh) {
-    _scene.callMethod("add", [mesh]);
   }
 
 //////////////////////////////////////////////////
@@ -120,4 +133,39 @@ class Scene {
   }
 
 //////////////////////////////////////////////////
+
+  void lookAround() {
+    for (Room room in _rooms) {
+      if (room.tag == _control.currentRoom.tag) {
+        continue;
+      }
+
+      final JsObject targetDirection = JsObject(context["THREE"]["Vector3"], [
+        room.position[0] - _control.currentRoom.position[0],
+        room.position[1] - _control.currentRoom.position[1],
+        room.position[2] - _control.currentRoom.position[2],
+      ]);
+
+      targetDirection.callMethod("normalize");
+
+      JsObject cameraDirection = JsObject(context["THREE"]["Vector3"]);
+      _camera.callMethod("getWorldDirection", [cameraDirection]);
+      cameraDirection.callMethod("setY", [0]);
+      cameraDirection.callMethod("normalize");
+
+      final num dotProduct =
+          targetDirection.callMethod("dot", [cameraDirection]);
+
+      final num deltaRadian = math.acos(dotProduct);
+      final num deltaDegree =
+          context["THREE"]["Math"].callMethod("radToDeg", [deltaRadian]);
+
+      if (deltaDegree < _control.changeThreshould) {
+        _control.showNextRoom(room);
+        break;
+      } else {
+        _control.noEntry();
+      }
+    }
+  }
 }

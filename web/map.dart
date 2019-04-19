@@ -21,6 +21,18 @@ class MapControl {
 
 //////////////////////////////////////////////////
 
+  void show() {
+    _map.style.opacity = "1.0";
+  }
+
+//////////////////////////////////////////////////
+
+  void hide() {
+    _map.style.opacity = "0";
+  }
+
+//////////////////////////////////////////////////
+
   void _expand() {
     _map.style.height = "${_expand_size.toString()}px";
     _map.style.width = "${_expand_size.toString()}px";

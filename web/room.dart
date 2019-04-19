@@ -1,4 +1,3 @@
-import "dart:html";
 import "dart:js";
 
 //////////////////////////////////////////////////
@@ -11,6 +10,12 @@ class Room {
 
   String _tag;
   List<num> _position;
+
+  bool _isChanging = false;
+
+  final num _changeSpeed = 0.05;
+
+  void Function() _animate;
 
 //////////////////////////////////////////////////
 
@@ -26,7 +31,7 @@ class Room {
     _texture["wrapT"] = context["THREE"]["RepeatWrapping"];
 
     _material = JsObject(context["THREE"]["MeshBasicMaterial"], [
-      JsObject.jsify({"map": _texture})
+      JsObject.jsify({"map": _texture, "transparent": true, "opacity": 0})
     ]);
 
     _geometry = new JsObject(context["THREE"]["SphereGeometry"], [600, 64, 64]);
@@ -38,7 +43,19 @@ class Room {
 
 //////////////////////////////////////////////////
 
-  set opacity(num newOpacity) => _material["opacity"] = newOpacity;
+  num get opacity => _material["opacity"];
+
+//////////////////////////////////////////////////
+
+  set opacity(num newOpacity) {
+    if (newOpacity > 1) {
+      _material["opacity"] = 1;
+    } else if (newOpacity < 0) {
+      _material["opacity"] = 0;
+    } else {
+      _material["opacity"] = newOpacity;
+    }
+  }
 
 //////////////////////////////////////////////////
 
@@ -51,6 +68,50 @@ class Room {
 //////////////////////////////////////////////////
 
   List<num> get position => _position;
+
+//////////////////////////////////////////////////
+
+  bool get isChanging => _isChanging;
+
+//////////////////////////////////////////////////
+
+  void Function() get animate => _animate;
+
+//////////////////////////////////////////////////
+
+  void entering() {
+    if (_isChanging) {
+      return;
+    }
+
+    _isChanging = true;
+
+    _animate = () {
+      if (opacity < 1) {
+        opacity += _changeSpeed;
+      } else {
+        _isChanging = false;
+      }
+    };
+  }
+
+//////////////////////////////////////////////////
+
+  void leaving() {
+    if (_isChanging) {
+      return;
+    }
+
+    _isChanging = true;
+
+    _animate = () {
+      if (opacity > 0) {
+        opacity -= _changeSpeed;
+      } else {
+        _isChanging = false;
+      }
+    };
+  }
 
 //////////////////////////////////////////////////
 }

@@ -1,19 +1,25 @@
-import "dart:html";
-import "dart:js";
-
 import "scene.dart";
 import "room.dart";
-import "map.dart";
 
 //////////////////////////////////////////////////
 
 void main() {
-  final _ = MapControl();
+  final livingRoom =
+      Room(img: "images/living_room.jpg", tag: "living room", x: 0, y: 0, z: 0);
 
-  final Scene scene = Scene();
-  final Room room = Room(img: "images/kitchen.jpg");
+  final kitchen =
+      Room(img: "images/kitchen.jpg", tag: "kitchen", x: 250, y: 0, z: 0);
 
-  scene.addMesh(room.mesh);
+  final workingRoom = Room(
+      img: "images/living_room_02.jpg",
+      tag: "working room",
+      x: 0,
+      y: 0,
+      z: -250);
+
+  final rooms = [livingRoom, kitchen, workingRoom];
+
+  final scene = Scene(rooms: rooms);
 
   scene.animate();
 }
