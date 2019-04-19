@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible"
+    content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <title>webgl 360 visualization</title>
+  <link rel="stylesheet"
+    href="styles.css">
+  <link rel="icon"
+    href="favicon.ico">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.min.js"></script>
+  <script defer
+    src="main.dart.js"></script>
+</head>
+
+<body>
+
+  <div id="control">
+    <button type="button"
+      onclick="change_room()"
+      class="room_button"
+      id="change_room_button">Change Room</button>
+    <button type="button"
+      class="map_button"
+      id="map_toggle_button">map</button>
+  </div>
+
+  <div id="map_container"
+    class="map_container">
+    <img class="arrow"
+      height=10%
+      id="arrow"
+      src="images/arrow.png"
+      draggable="false">
+    <img class="map"
+      height=100%
+      id="map"
+      src="images_small/top_view.png"
+      draggable="false">
+
+  </div>
+
+</body>
+
+</html>
