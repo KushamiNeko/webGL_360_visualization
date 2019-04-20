@@ -3,10 +3,12 @@ import "dart:html";
 //////////////////////////////////////////////////
 
 class MapControl {
-  static final num _collapse_size = (window.innerHeight * 0.5).floor();
-  static final num _expand_size = (window.innerHeight * 0.9).floor();
+  final num _collapse_size = (window.innerHeight * 0.5).floor();
+  final num _expand_size = (window.innerHeight * 0.9).floor();
 
-  static final Element _map = querySelector("#map_container");
+  final Element _container = querySelector("#map_container");
+  final ImageElement _map = querySelector("#map");
+  final Element _arrow = querySelector("#map_arrow");
 
   bool _opened = false;
 
@@ -22,22 +24,32 @@ class MapControl {
 //////////////////////////////////////////////////
 
   void show() {
-    _map.style.opacity = "1.0";
+    _container.style.opacity = "1.0";
   }
 
 //////////////////////////////////////////////////
 
   void hide() {
-    _map.style.opacity = "0";
+    _container.style.opacity = "0";
   }
 
 //////////////////////////////////////////////////
 
+  void rotateArrow(num degree) {
+    _arrow.style.transform = "rotate(${degree}deg)";
+  }
+
+//////////////////////////////////////////////////
+
+  set src(String img) => _map.src = img;
+
+//////////////////////////////////////////////////
+
   void _expand() {
-    _map.style.height = "${_expand_size.toString()}px";
-    _map.style.width = "${_expand_size.toString()}px";
+    _container.style.height = "${_expand_size.toString()}px";
+    _container.style.width = "${_expand_size.toString()}px";
     final num map_offset = (window.innerWidth / 2) - (_expand_size / 2);
-    _map.style.left = "${map_offset}px";
+    _container.style.left = "${map_offset}px";
 
     _opened = true;
   }
@@ -45,10 +57,10 @@ class MapControl {
 //////////////////////////////////////////////////
 
   void _collapse() {
-    _map.style.height = "${_collapse_size.toString()}px";
-    _map.style.width = "${_collapse_size.toString()}px";
-    _map.style.left = "1%";
-    _map.style.top = "1%";
+    _container.style.height = "${_collapse_size.toString()}px";
+    _container.style.width = "${_collapse_size.toString()}px";
+    _container.style.left = "1%";
+    _container.style.top = "1%";
 
     _opened = false;
   }

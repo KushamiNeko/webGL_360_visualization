@@ -1,8 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto);
-
 html,
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -16,11 +14,9 @@ body {
   opacity: 0;
 }
 
-.room_button {
+@mixin large_button {
   color: antiquewhite;
   position: absolute;
-  bottom: 3%;
-  left: 50%;
   text-align: center;
   background: rgba(0, 0, 0, 0.5);
   border-color: rgba(0, 0, 0, 0.5);
@@ -29,16 +25,16 @@ body {
   pointer-events: visible
 }
 
+.room_button {
+  @include large_button;
+  bottom: 3%;
+  left: 50%;
+}
+
 .map_button {
-  color: antiquewhite;
-  position: absolute;
+  @include large_button;
   bottom: 3%;
   left: 3%;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.5);
-  border-color: rgba(0, 0, 0, 0.5);
-  width: 10%;
-  height: 7.5%;
 }
 
 
@@ -51,13 +47,12 @@ body {
   /*z-index: 2;*/
 }
 
-/*.map {*/
-/*position: absolute;*/
-/*opacity: 0.9;*/
-/*pointer-events: none;*/
-/*height: 100%;*/
-/*width: 100%;*/
-/*}*/
+.map {
+  opacity: 0.9;
+  pointer-events: none;
+  height: 100%;
+  width: 100%;
+}
 
 /*.button00 {*/
 /*color: antiquewhite;*/

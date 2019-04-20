@@ -1,4 +1,5 @@
 import "dart:html";
+import "helper.dart";
 import "dart:js";
 import "room.dart";
 import "control.dart";
@@ -47,10 +48,12 @@ class Scene {
 
 //////////////////////////////////////////////////
 
-  Scene({List<Room> rooms}) : _rooms = rooms {
+  Scene({List<Room> rooms, String map}) : _rooms = rooms {
     for (Room room in _rooms) {
       _scene.callMethod("add", [room.mesh]);
     }
+
+    _map.src = map;
 
     _control.changeRoom(_rooms[0]);
 
@@ -75,12 +78,8 @@ class Scene {
 
   void animate() {
     _cameraRig.lat = math.max(-85, math.min(85, _cameraRig.lat));
-    _cameraRig.phi =
-        context["THREE"]["Math"].callMethod("degToRad", [90 - _cameraRig.lat]);
-    _cameraRig.theta =
-        context["THREE"]["Math"].callMethod("degToRad", [_cameraRig.lon]);
-
-    //_arrow_animation();
+    _cameraRig.phi = degreeToRadian(90 - _cameraRig.lat);
+    _cameraRig.theta = degreeToRadian(_cameraRig.lon);
 
     _camera["position"]["x"] =
         100 * math.sin(_cameraRig.phi) * math.cos(_cameraRig.theta);
@@ -95,6 +94,8 @@ class Scene {
     }
 
     lookAround();
+
+    _map.rotateArrow(radianToDegree(_cameraRig.theta));
 
     _camera.callMethod("lookAt", [_scene["position"]]);
 
@@ -135,6 +136,8 @@ class Scene {
 //////////////////////////////////////////////////
 
   void lookAround() {
+    final List<Room> targets = List();
+
     for (Room room in _rooms) {
       if (room.tag == _control.currentRoom.tag) {
         continue;
@@ -157,15 +160,46 @@ class Scene {
           targetDirection.callMethod("dot", [cameraDirection]);
 
       final num deltaRadian = math.acos(dotProduct);
-      final num deltaDegree =
-          context["THREE"]["Math"].callMethod("radToDeg", [deltaRadian]);
+
+      final num deltaDegree = radianToDegree(deltaRadian);
 
       if (deltaDegree < _control.changeThreshould) {
-        _control.showNextRoom(room);
-        break;
-      } else {
-        _control.noEntry();
+        targets.add(room);
       }
+    }
+
+    if (targets.isEmpty) {
+      _control.noEntry();
+    } else if (targets.length == 1) {
+      _control.showNextRoom(targets[0]);
+    } else {
+      targets.sort((a, b) {
+        var distanceA = math.sqrt(
+            math.pow(a.position[0] - _control.currentRoom.position[0], 2) +
+                math.pow(a.position[1] - _control.currentRoom.position[1], 2) +
+                math.pow(a.position[2] - _control.currentRoom.position[2], 2));
+
+        var distanceB = math.sqrt(
+            math.pow(b.position[0] - _control.currentRoom.position[0], 2) +
+                math.pow(b.position[1] - _control.currentRoom.position[1], 2) +
+                math.pow(b.position[2] - _control.currentRoom.position[2], 2));
+
+        if (distanceA < distanceB) {
+          return -1;
+        }
+
+        if (distanceA == distanceB) {
+          return 0;
+        }
+
+        if (distanceA > distanceB) {
+          return 1;
+        }
+      });
+
+      _control.showNextRoom(targets[0]);
     }
   }
 }
+
+//////////////////////////////////////////////////

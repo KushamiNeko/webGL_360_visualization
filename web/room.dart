@@ -19,9 +19,16 @@ class Room {
 
 //////////////////////////////////////////////////
 
-  Room({String img, String tag, num x, num y, num z})
-      : _tag = tag,
-        _position = [x, y, z] {
+  Room({String img, String tag, num x, num y, num z, String upAxis = "y"})
+      : _tag = tag {
+    if (upAxis.toLowerCase() == "y") {
+      _position = [x, 0, z];
+    } else if (upAxis.toLowerCase() == "z") {
+      _position = [-y, 0, -x];
+    } else {
+      throw Exception("up axis should be either y or z");
+    }
+
     final JsObject loader = JsObject(context["THREE"]["TextureLoader"]);
     _texture = loader.callMethod("load", [img]);
 

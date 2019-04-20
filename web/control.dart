@@ -30,6 +30,14 @@ class MainControl {
 //////////////////////////////////////////////////
 
   void changeRoom(Room newRoom) {
+    if (_currentRoom != null && _currentRoom.isChanging) {
+      return;
+    }
+
+    if (newRoom.isChanging) {
+      return;
+    }
+
     _currentRoom?.leaving();
     newRoom?.entering();
     _currentRoom = newRoom;
