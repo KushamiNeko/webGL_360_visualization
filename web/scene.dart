@@ -3,7 +3,6 @@ import "helper.dart";
 import "dart:js";
 import "room.dart";
 import "control.dart";
-import "map.dart";
 import "dart:math" as math;
 
 //////////////////////////////////////////////////
@@ -39,8 +38,7 @@ class Scene {
 
   final _Camera _cameraRig = _Camera();
 
-  final MainControl _control = MainControl();
-  final MapControl _map = MapControl();
+  final MainControl _control;
 
   bool _listening = false;
 
@@ -48,12 +46,12 @@ class Scene {
 
 //////////////////////////////////////////////////
 
-  Scene({List<Room> rooms, String map}) : _rooms = rooms {
+  Scene({MainControl control, List<Room> rooms})
+      : _control = control,
+        _rooms = rooms {
     for (Room room in _rooms) {
       _scene.callMethod("add", [room.mesh]);
     }
-
-    _map.src = map;
 
     _control.changeRoom(_rooms[0]);
 
@@ -71,7 +69,7 @@ class Scene {
     querySelector("body").onMouseMove.listen(_mouse_move);
     querySelector("body").onMouseUp.listen(_mouse_up);
 
-    _map.show();
+    _control.showMap();
   }
 
 //////////////////////////////////////////////////
@@ -95,7 +93,7 @@ class Scene {
 
     lookAround();
 
-    _map.rotateArrow(radianToDegree(_cameraRig.theta));
+    _control.rotateMapArrow(radianToDegree(_cameraRig.theta));
 
     _camera.callMethod("lookAt", [_scene["position"]]);
 

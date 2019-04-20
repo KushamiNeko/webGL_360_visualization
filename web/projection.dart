@@ -3,7 +3,7 @@ import "dart:math";
 
 //////////////////////////////////////////////////
 
-List<num> newIdenitytyMatrix() {
+List<num> _newIdenitytyMatrix() {
   List<num> matrix = List<num>.filled(16, 0, growable: false);
 
   matrix[0] = 1.0;
@@ -16,49 +16,87 @@ List<num> newIdenitytyMatrix() {
 
 //////////////////////////////////////////////////
 
-class TopCamera {
-  num fov;
-  num sizeX;
-  num sizeY;
-  num near;
-  num far;
+class ProjectionCamera {
+  num _fov;
+  num _sizeX;
+  num _sizeY;
+  num _near;
+  num _far;
 
-  List<num> position;
-  List<num> perspective;
+  List<num> _position;
 
-  List<num> camT;
+  List<num> _perspective;
+  List<num> _camT;
 
 //////////////////////////////////////////////////
 
-  TopCamera({num x, num y, num z, String upAxis = "y"}) {
+  ProjectionCamera(
+      {num fov,
+      num near,
+      num far,
+      num sizeX,
+      num sizeY,
+      num x,
+      num y,
+      num z,
+      String upAxis = "y"})
+      : _fov = fov,
+        _near = near,
+        _far = far,
+        _sizeX = sizeX,
+        _sizeY = sizeY {
     if (upAxis.toLowerCase() == "y") {
-      position = [x, 0, z];
+      //_position = [x, y, z];
+      _position = [x * 100, y * 100, z * 100];
     } else if (upAxis.toLowerCase() == "z") {
-      position = [-y, 0, -x];
+      _position = [x * 100, y * 100, z * 100];
     } else {
       throw Exception("up axis should be either y or z");
     }
 
-    _getTranslation();
+    _getCamT();
     _getPerspective();
   }
 
 //////////////////////////////////////////////////
 
-  num get aspectRatio => sizeX / sizeY;
+  ProjectionCamera.setup(Map<String, dynamic> settings)
+      : this(
+          fov: settings["fov"],
+          near: settings["near"],
+          far: settings["far"],
+          sizeX: settings["sizeX"],
+          sizeY: settings["sizeY"],
+          x: settings["x"],
+          y: settings["y"],
+          z: settings["z"],
+          upAxis: settings["upAxis"],
+        );
 
 //////////////////////////////////////////////////
 
-  void _getTranslation() {
-    var t = newIdenitytyMatrix();
+  List<num> get perspective => _perspective;
 
-    t[12] = -position[0];
-    t[13] = -position[1];
-    t[14] = -position[2];
+//////////////////////////////////////////////////
 
-    var id = newIdenitytyMatrix();
+  List<num> get camT => _camT;
 
-    camT = List<num>.filled(16, 0, growable: false);
+//////////////////////////////////////////////////
+
+  num get aspectRatio => _sizeX / _sizeY;
+
+//////////////////////////////////////////////////
+
+  void _getCamT() {
+    var t = _newIdenitytyMatrix();
+
+    t[12] = -_position[0];
+    t[13] = -_position[1];
+    t[14] = -_position[2];
+
+    var id = _newIdenitytyMatrix();
+
+    _camT = List<num>.filled(16, 0, growable: false);
 
     var index = 0;
 
@@ -70,7 +108,7 @@ class TopCamera {
           sum += t[i + col * 4] * id[row + i * 4];
         }
 
-        camT[index] = sum;
+        _camT[index] = sum;
         index++;
       }
     }
@@ -80,13 +118,14 @@ class TopCamera {
 
   void _getPerspective() {
     var matrix = List<num>.filled(16, 0, growable: false);
-    var fovRadian = degreeToRadian(fov);
-    var viewRange = tan((fovRadian / 2.0) * near);
+    var fovRadian = degreeToRadian(_fov);
+    var viewRange = tan((fovRadian / 2.0) * _near);
 
-    var sx = (2.0 * near) / (viewRange * aspectRatio + viewRange * aspectRatio);
-    var sy = near / viewRange;
-    var sz = -(far + near) / (far - near);
-    var pz = -(2.0 * far * near) / (far - near);
+    var sx =
+        (2.0 * _near) / (viewRange * aspectRatio + viewRange * aspectRatio);
+    var sy = _near / viewRange;
+    var sz = -(_far + _near) / (_far - _near);
+    var pz = -(2.0 * _far * _near) / (_far - _near);
 
     matrix[0] = sx;
     matrix[5] = sy;
@@ -94,7 +133,7 @@ class TopCamera {
     matrix[14] = pz;
     matrix[11] = -1.0;
 
-    perspective = matrix;
+    _perspective = matrix;
   }
 
 //////////////////////////////////////////////////
@@ -102,8 +141,8 @@ class TopCamera {
 
 //////////////////////////////////////////////////
 
-class RoomCamera {
-  TopCamera _camera;
+class RoomProjection {
+  ProjectionCamera _camera;
   List<num> _position;
 
   num _nx;
@@ -113,20 +152,53 @@ class RoomCamera {
 
 //////////////////////////////////////////////////
 
-  RoomCamera({TopCamera camera, num x, num y, num z, String upAxis = "y"})
+  RoomProjection(
+      {ProjectionCamera camera,
+      String tag,
+      num x,
+      num y,
+      num z,
+      String upAxis = "y"})
       : _camera = camera {
     if (upAxis.toLowerCase() == "y") {
-      _position = [x, 0, z];
+      //_position = [x, 0, z];
+      _position = [x * 100, y * 100, z * 100];
     } else if (upAxis.toLowerCase() == "z") {
-      _position = [-y, 0, -x];
+      _position = [x * 100, y * 100, z * 100];
     } else {
       throw Exception("up axis should be either y or z");
     }
+
+    _calculate();
   }
 
 //////////////////////////////////////////////////
 
-  void calculate() {
+  RoomProjection.setup(ProjectionCamera camera, Map<String, dynamic> setting)
+      : this(
+          camera: camera,
+          tag: setting["tag"],
+          x: setting["x"],
+          y: setting["y"],
+          z: setting["z"],
+          upAxis: setting["upAxis"],
+        );
+
+//////////////////////////////////////////////////
+
+  num get nx => _nx;
+
+//////////////////////////////////////////////////
+
+  num get ny => _ny;
+
+//////////////////////////////////////////////////
+
+  num get nz => _nz;
+
+//////////////////////////////////////////////////
+
+  void _calculate() {
     var v = List<num>.filled(4, 0, growable: false);
     v[0] = _position[0];
     v[1] = _position[1];
@@ -177,6 +249,10 @@ class RoomCamera {
     _nx = ((_nx / _nw) + 1.0) / 2.0;
     _ny = ((_ny / _nw) + 1.0) / 2.0;
     _nz = ((_nz / _nw) + 1.0) / 2.0;
+
+    _nx *= 100.0;
+    _ny *= 100.0;
+    _nz *= 100.0;
   }
 
 //////////////////////////////////////////////////

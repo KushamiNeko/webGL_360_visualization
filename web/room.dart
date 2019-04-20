@@ -1,4 +1,5 @@
 import "dart:js";
+import "projection.dart";
 
 //////////////////////////////////////////////////
 
@@ -17,9 +18,19 @@ class Room {
 
   void Function() _animate;
 
+  num _nx;
+  num _ny;
+
 //////////////////////////////////////////////////
 
-  Room({String img, String tag, num x, num y, num z, String upAxis = "y"})
+  Room(
+      {ProjectionCamera camera,
+      String img,
+      String tag,
+      num x,
+      num y,
+      num z,
+      String upAxis = "y"})
       : _tag = tag {
     if (upAxis.toLowerCase() == "y") {
       _position = [x, 0, z];
@@ -46,6 +57,12 @@ class Room {
     _geometry.callMethod("scale", [-1, 1, 1]);
 
     _mesh = JsObject(context["THREE"]["Mesh"], [_geometry, _material]);
+
+    final RoomProjection projection =
+        RoomProjection(camera: camera, x: x, y: y, z: z, upAxis: upAxis);
+
+    _nx = projection.nx;
+    _ny = projection.ny;
   }
 
 //////////////////////////////////////////////////
@@ -54,15 +71,11 @@ class Room {
 
 //////////////////////////////////////////////////
 
-  set opacity(num newOpacity) {
-    if (newOpacity > 1) {
-      _material["opacity"] = 1;
-    } else if (newOpacity < 0) {
-      _material["opacity"] = 0;
-    } else {
-      _material["opacity"] = newOpacity;
-    }
-  }
+  num get nx => _nx;
+
+//////////////////////////////////////////////////
+
+  num get ny => _ny;
 
 //////////////////////////////////////////////////
 
@@ -83,6 +96,18 @@ class Room {
 //////////////////////////////////////////////////
 
   void Function() get animate => _animate;
+
+//////////////////////////////////////////////////
+
+  set opacity(num newOpacity) {
+    if (newOpacity > 1) {
+      _material["opacity"] = 1;
+    } else if (newOpacity < 0) {
+      _material["opacity"] = 0;
+    } else {
+      _material["opacity"] = newOpacity;
+    }
+  }
 
 //////////////////////////////////////////////////
 
