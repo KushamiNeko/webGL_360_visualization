@@ -16,17 +16,12 @@ class MainControl {
 
   final List<ButtonElement> _mapButtons = List();
 
-  final List<Room> _rooms;
-
   Room _currentRoom;
   Room _nextRoom;
 
 //////////////////////////////////////////////////
 
-  MainControl({String mapImg, List<Room> rooms}) : _rooms = rooms {
-    final ImageElement map = querySelector("#map");
-    map.src = mapImg;
-
+  MainControl() {
     noEntry();
 
     _roomButton.onClick.listen((MouseEvent event) {
@@ -38,8 +33,6 @@ class MainControl {
     });
 
     _minimizeMap();
-
-    _projectButtons();
   }
 
 //////////////////////////////////////////////////
@@ -52,8 +45,15 @@ class MainControl {
 
 //////////////////////////////////////////////////
 
-  void _projectButtons() {
-    for (var room in _rooms) {
+  void setMapSrc(String image) {
+    final ImageElement map = querySelector("#map");
+    map.src = image;
+  }
+
+//////////////////////////////////////////////////
+
+  void projectButtons({List<Room> rooms}) {
+    for (var room in rooms) {
       final ButtonElement button = ButtonElement();
       button.innerHtml = room.tag;
       button.classes.add("map_button");

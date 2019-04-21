@@ -38,7 +38,7 @@ class Scene {
 
   final _Camera _cameraRig = _Camera();
 
-  final MainControl _control;
+  final MainControl _control = MainControl();
 
   bool _listening = false;
 
@@ -46,12 +46,13 @@ class Scene {
 
 //////////////////////////////////////////////////
 
-  Scene({MainControl control, List<Room> rooms})
-      : _control = control,
-        _rooms = rooms {
+  Scene({String mapImage, List<Room> rooms}) : _rooms = rooms {
     for (Room room in _rooms) {
       _scene.callMethod("add", [room.mesh]);
     }
+
+    _control.setMapSrc(mapImage);
+    _control.projectButtons(rooms: rooms);
 
     _control.changeRoom(_rooms[0]);
 

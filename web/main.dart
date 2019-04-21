@@ -65,15 +65,13 @@ var mock = {
 //////////////////////////////////////////////////
 
 void main() {
-  final String mapImg = mock["map"];
+  final String mapImage = mock["map"];
   final Map<String, dynamic> projectionSettings = mock["projection"];
   final List<Map<String, dynamic>> blueprint = mock["rooms"];
 
   final List<Room> rooms = readBlueprint(projectionSettings, blueprint);
 
-  final MainControl control = MainControl(mapImg: mapImg, rooms: rooms);
-
-  final Scene scene = Scene(control: control, rooms: rooms);
+  final Scene scene = Scene(mapImage: mapImage, rooms: rooms);
 
   scene.animate();
 }
