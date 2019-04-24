@@ -1,4 +1,7 @@
 import "dart:js";
+
+import "package:meta/meta.dart";
+
 import "projection.dart";
 
 //////////////////////////////////////////////////
@@ -24,12 +27,12 @@ class Room {
 //////////////////////////////////////////////////
 
   Room(
-      {ProjectionCamera camera,
-      String img,
-      String tag,
-      num x,
-      num y,
-      num z,
+      {@required ProjectionCamera camera,
+      @required String img,
+      @required String tag,
+      @required num x,
+      @required num y,
+      @required num z,
       String upAxis = "y"})
       : _tag = tag {
     if (upAxis.toLowerCase() == "y") {

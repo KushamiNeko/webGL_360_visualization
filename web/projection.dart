@@ -1,9 +1,12 @@
-import "helper.dart";
 import "dart:math";
+
+import "package:meta/meta.dart";
+
+import "helper.dart";
 
 //////////////////////////////////////////////////
 
-List<num> _newIdenitytyMatrix() {
+List<num> _newIdentityMatrix() {
   List<num> matrix = List<num>.filled(16, 0, growable: false);
 
   matrix[0] = 1.0;
@@ -31,14 +34,14 @@ class ProjectionCamera {
 //////////////////////////////////////////////////
 
   ProjectionCamera(
-      {num fov,
-      num near,
-      num far,
-      num sizeX,
-      num sizeY,
-      num x,
-      num y,
-      num z,
+      {@required num fov,
+      @required num near,
+      @required num far,
+      @required num sizeX,
+      @required num sizeY,
+      @required num x,
+      @required num y,
+      @required num z,
       String upAxis = "y"})
       : _fov = fov,
         _near = near,
@@ -88,13 +91,13 @@ class ProjectionCamera {
 //////////////////////////////////////////////////
 
   void _getCamT() {
-    var t = _newIdenitytyMatrix();
+    var t = _newIdentityMatrix();
 
     t[12] = -_position[0];
     t[13] = -_position[1];
     t[14] = -_position[2];
 
-    var id = _newIdenitytyMatrix();
+    var id = _newIdentityMatrix();
 
     _camT = List<num>.filled(16, 0, growable: false);
 
@@ -153,11 +156,10 @@ class RoomProjection {
 //////////////////////////////////////////////////
 
   RoomProjection(
-      {ProjectionCamera camera,
-      String tag,
-      num x,
-      num y,
-      num z,
+      {@required ProjectionCamera camera,
+      @required num x,
+      @required num y,
+      @required num z,
       String upAxis = "y"})
       : _camera = camera {
     if (upAxis.toLowerCase() == "y") {
@@ -177,7 +179,6 @@ class RoomProjection {
   RoomProjection.setup(ProjectionCamera camera, Map<String, dynamic> setting)
       : this(
           camera: camera,
-          tag: setting["tag"],
           x: setting["x"],
           y: setting["y"],
           z: setting["z"],

@@ -1,4 +1,5 @@
 import "dart:html";
+import "package:meta/meta.dart";
 import "helper.dart";
 import "dart:js";
 import "room.dart";
@@ -46,12 +47,12 @@ class Scene {
 
 //////////////////////////////////////////////////
 
-  Scene({String mapImage, List<Room> rooms}) : _rooms = rooms {
+  Scene({@required String map, @required List<Room> rooms}) : _rooms = rooms {
     for (Room room in _rooms) {
       _scene.callMethod("add", [room.mesh]);
     }
 
-    _control.setMapSrc(mapImage);
+    _control.setMapSrc(map);
     _control.projectButtons(rooms: rooms);
 
     _control.changeRoom(_rooms[0]);

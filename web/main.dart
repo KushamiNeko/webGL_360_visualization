@@ -1,7 +1,7 @@
-import "scene.dart";
-import "control.dart";
 import "helper.dart";
 import "room.dart";
+import "scene.dart";
+//import "control.dart";
 
 //////////////////////////////////////////////////
 
@@ -65,13 +65,13 @@ var mock = {
 //////////////////////////////////////////////////
 
 void main() {
-  final String mapImage = mock["map"];
+  final String map = mock["map"];
   final Map<String, dynamic> projectionSettings = mock["projection"];
   final List<Map<String, dynamic>> blueprint = mock["rooms"];
 
   final List<Room> rooms = readBlueprint(projectionSettings, blueprint);
 
-  final Scene scene = Scene(mapImage: mapImage, rooms: rooms);
+  final Scene scene = Scene(map: map, rooms: rooms);
 
   scene.animate();
 }
